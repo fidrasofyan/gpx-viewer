@@ -1,9 +1,11 @@
 # syntax=docker/dockerfile:1
 
-# GPX Viewer — Bun is the web server (production mode, no separate web server).
-# The frontend is bundled by Bun at startup via the `index.html` import.
+# GPX Viewer — multi-stage build.
+# Stage 1 (build): Bun bundles the static site into dist/.
+# Stage 2 (runtime): Caddy serves dist/ — no Node/Bun runtime in the image.
 
-FROM oven/bun:1.4.0-alpine
+# ---- Build stage ----
+FROM oven/bun:1.4.0-alpine AS build
 
 WORKDIR /app
 
@@ -11,20 +13,21 @@ WORKDIR /app
 COPY --chown=bun:bun package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
 
-# Copy the rest of the source.
+# Copy the rest of the source and bundle the client.
 COPY --chown=bun:bun . .
+RUN bun run build
 
-# The runtime never writes outside the image; make the app dir fully owned by
-# the non-root `bun` user and drop privileges.
-RUN chown -R bun:bun /app
-USER bun
+# ---- Runtime stage ----
+FROM caddy:2.11.4-alpine
 
-ENV NODE_ENV=production
+COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/dist /srv
 
-# Bun's default server port inside the container (host mapping is set in compose.yaml).
-EXPOSE 3000
+# Serve as the non-root `caddy` user (shipped in the image; port 80 binds under
+# Docker's default CAP_NET_BIND_SERVICE).
+USER caddy
+
+EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD ["bun", "-e", "fetch('http://127.0.0.1:3000/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"]
-
-CMD ["bun", "src/index.ts"]
+  CMD ["wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]

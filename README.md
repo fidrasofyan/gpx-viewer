@@ -28,10 +28,10 @@ bun start       # NODE_ENV=production server
 
 ## Docker
 
-Bun runs as the web server in production mode inside the container (no separate
-web server needed). The container listens on Bun's default port `3000`; the host
-side is configured via a required `.env` file — the bind address (`HOST`) and the
-port (`PORT`).
+The image is built in two stages: **Bun bundles the static site** into `dist/`,
+then **Caddy serves it** — no Bun/Node runtime in the final image. The container
+listens on port `80`; the host side is configured via a required `.env` file —
+the bind address (`HOST`) and the port (`PORT`).
 
 ```bash
 cp .env.example .env   # required — compose.yaml fails without HOST and PORT
@@ -40,14 +40,16 @@ docker compose up -d --build
 
 Then open http://localhost:8080 (or the address/port from your `.env`).
 
-- `Dockerfile` — `oven/bun:1.4.0-alpine`, non-root `bun` user, healthcheck, no volumes needed (the app is stateless and parses GPX in the browser).
-- `compose.yaml` — service `gpx-viewer`, `restart: unless-stopped`, port `"${HOST:?...}:${PORT:?...}:3000"` (both `HOST` and `PORT` required from `.env`).
+- `Dockerfile` — multi-stage: `oven/bun:1.4.0-alpine` builds `dist/`, `caddy:2-alpine` serves it as the non-root `caddy` user, healthcheck, no volumes needed (the app is stateless and parses GPX in the browser).
+- `Caddyfile` — static file server on `:80` with gzip/zstd compression, SPA fallback (`try_files`), and immutable caching of the content-hashed assets.
+- `compose.yaml` — service `gpx-viewer`, `restart: unless-stopped`, port `"${HOST:?...}:${PORT:?...}:80"` (both `HOST` and `PORT` required from `.env`).
 
 ## Project layout
 
 | Path | Purpose |
 | --- | --- |
-| `src/index.ts` | Bun server (serves the app) |
+| `src/index.ts` | Bun dev/local server (HMR in development; also `bun start`) |
+| `Caddyfile` | Production static server config (Docker runtime stage) |
 | `src/App.tsx` | App shell: header, sidebar, layout |
 | `src/gpx.ts` | Tolerant GPX 1.0/1.1 parser (tracks, routes, waypoints) |
 | `src/geo.ts` | Distance, elevation, time stats + profile building |
