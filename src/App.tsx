@@ -26,6 +26,8 @@ import { SplitsTable } from "./components/SplitsTable";
 import { ComparePanel } from "./components/ComparePanel";
 import { FileSelector } from "./components/FileSelector";
 import { Dropzone } from "./components/Dropzone";
+import { Errors } from "./components/Errors";
+import { newId } from "./id";
 
 const PALETTE = [
   "#f43f5e", // rose-500
@@ -95,7 +97,7 @@ export function App() {
           newErrors.push({ fileName: file.name, message: "No tracks, routes, or waypoints found" });
           continue;
         }
-        newFiles.push({ id: crypto.randomUUID(), gpx });
+        newFiles.push({ id: newId(), gpx });
       } catch (e) {
         newErrors.push({
           fileName: file.name,
@@ -442,6 +444,9 @@ export function App() {
                 label="Browse GPX files"
                 buttonClassName="inline-flex items-center gap-2 rounded-xl border border-sky-500/40 bg-sky-500/15 px-6 py-3 text-sm font-medium text-sky-200 transition hover:bg-sky-500/25"
               />
+            </div>
+            <div className="mt-6 w-full text-left">
+              <Errors errors={errors} onClearErrors={() => setErrors([])} />
             </div>
           </div>
         </div>
