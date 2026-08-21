@@ -1,10 +1,10 @@
 # GPX Viewer — Docker Compose
 #
-#   cp .env.example .env   # optional: set HOST (default 0.0.0.0) and PORT (default 8080)
+#   cp .env.example .env   # required: sets HOST and PORT
 #   docker compose up -d --build
 #
-# The container always listens on port 3000 (Bun's default); only the host
-# side is configurable via HOST and PORT in .env.
+# The container always listens on port 3000 (Bun's default); the host side is
+# configured via HOST and PORT, both required from .env (see .env.example).
 
 services:
   gpx-viewer:
@@ -14,6 +14,6 @@ services:
     image: gpx-viewer
     restart: unless-stopped
     ports:
-      - "${HOST:-0.0.0.0}:${PORT:-8080}:3000"
+      - "${HOST:?HOST is required — copy .env.example to .env}:${PORT:?PORT is required — copy .env.example to .env}:3000"
     environment:
       NODE_ENV: production

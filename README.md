@@ -29,19 +29,19 @@ bun start       # NODE_ENV=production server
 ## Docker
 
 Bun runs as the web server in production mode inside the container (no separate
-web server needed). The container listens on Bun's default port `3000`; only the
-host side is configurable — the bind address (`HOST`, default `0.0.0.0`) and the
-port (`PORT`, default `8080`).
+web server needed). The container listens on Bun's default port `3000`; the host
+side is configured via a required `.env` file — the bind address (`HOST`) and the
+port (`PORT`).
 
 ```bash
-cp .env.example .env   # optional — set HOST (default 0.0.0.0) and PORT (default 8080)
+cp .env.example .env   # required — compose.yaml fails without HOST and PORT
 docker compose up -d --build
 ```
 
 Then open http://localhost:8080 (or the address/port from your `.env`).
 
 - `Dockerfile` — `oven/bun:1.4.0-alpine`, non-root `bun` user, healthcheck, no volumes needed (the app is stateless and parses GPX in the browser).
-- `compose.yaml` — service `gpx-viewer`, `restart: unless-stopped`, port `"${HOST:-0.0.0.0}:${PORT:-8080}:3000"`.
+- `compose.yaml` — service `gpx-viewer`, `restart: unless-stopped`, port `"${HOST:?...}:${PORT:?...}:3000"` (both `HOST` and `PORT` required from `.env`).
 
 ## Project layout
 
