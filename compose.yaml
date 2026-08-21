@@ -8,6 +8,7 @@
 
 services:
   gpx-viewer:
+    container_name: gpx-viewer
     build:
       context: .
       dockerfile: Dockerfile
