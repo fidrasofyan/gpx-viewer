@@ -19,14 +19,8 @@ RUN bun run build
 
 # ---- Runtime stage ----
 FROM caddy:2.11.4-alpine
-
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/dist /srv
-
-# Serve as the non-root `caddy` user (shipped in the image; port 80 binds under
-# Docker's default CAP_NET_BIND_SERVICE).
-USER caddy
-
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
