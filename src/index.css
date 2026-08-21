@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    @apply text-[rgba(255,255,255,0.87)] bg-[#0b0e14] font-sans;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+  }
+}
+
+/* Leaflet container should fill its parent */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #10151d;
+  font: inherit;
+}
+
+.leaflet-control-attribution {
+  background: rgba(0, 0, 0, 0.55) !important;
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: #7dd3fc;
+}
+
+.leaflet-tooltip {
+  background: #181c24;
+  color: #e4e4e7;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-tooltip-top:before {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Waypoint markers */
+.gpx-wpt-wrap {
+  background: transparent;
+  border: none;
+}
+
+.gpx-wpt {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #fbbf24;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Direction arrow on the split highlight */
+.gpx-dir-wrap {
+  background: transparent;
+  border: none;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.55));
+}
+
+/* Hide scrollbars on horizontally scrolling chip rows (mobile) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
